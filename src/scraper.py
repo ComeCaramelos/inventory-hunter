@@ -30,6 +30,10 @@ class ScrapeResult:
         if not price_str:
             return
 
+        if ',' in price_str: # spanish format [dot (.) for thousands] [comma (,) for decimals]
+            price_str = price_str.replace('.', ''); # remove thousands sep
+            price_str = price_str.replace(',', '.'); # set valid decimal sep
+
         try:
             currency_symbol = locale.localeconv()['currency_symbol']
             self.price = locale.atof(price_str.replace(currency_symbol, '').strip())
@@ -175,6 +179,42 @@ class NeweggScrapeResult(ScrapeResult):
             logging.warning(f'missing buy box: {self.url}')
 
 
+class PccomponentesScrapeResult(ScrapeResult):
+    def __init__(self, r):
+        super().__init__(r)
+        alert_subject = 'In Stock'
+        alert_content = ''
+
+        # get name of product
+        item_title = self.soup.body.find('div', class_='articulo')
+        tag = item_title.find('strong')
+        if tag:
+            alert_content += tag.text.strip() + '\n'
+
+            # get listed price
+            buy_box = self.soup.body.find('div', id='priceBlock')
+            if buy_box:
+
+                tag = buy_box.find('div', id='precio-main')
+                price_str = self.set_price(tag)
+                logging.info(f'price_str: {price_str}')
+                if price_str is None:
+                    logging.warning(f'missing price: {self.url}')
+
+                # check for add to cart button
+                tag = self.soup.body.find('button', class_='GTM-addToCart')
+                if tag:
+                    if 'disabled' not in tag['class']:
+                        self.alert_subject = alert_subject
+                        self.alert_content = f'{alert_content.strip()}\n{self.url}'
+                else:
+                    logging.warning(f'missing add to cart button: {self.url}')
+            else:
+                logging.warning(f'missing buy box: {self.url}')
+        else:
+            logging.warning(f'missing title: {self.url}')
+
+
 def get_result_type(url):
     if 'bestbuy' in url.netloc:
         return BestBuyScrapeResult
@@ -184,6 +224,8 @@ def get_result_type(url):
         return MicroCenterScrapeResult
     elif 'newegg' in url.netloc:
         return NeweggScrapeResult
+    elif 'pccomponentes' in url.netloc:
+        return PccomponentesScrapeResult
     return GenericScrapeResult
 
 
@@ -197,6 +239,8 @@ def get_short_name(url):
         elif 'microcenter' in url.netloc:
             return parts[-1]
         elif 'newegg' in url.netloc:
+            return parts[0]
+        elif 'pccomponentes' in url.netloc:
             return parts[0]
         return '_'.join(parts)
     random.seed()
