@@ -1,0 +1,6 @@
+---
+refresh_interval: 15 # seconds
+urls:
+  - https://xtremmedia.com/AMD_Ryzen_5_3600_BOX.html # item in stock (test)
+  - https://xtremmedia.com/Zotac_GeForce_RTX_3080_Trinity_10GB_GDDR6X.html
+...

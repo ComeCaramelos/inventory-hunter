@@ -1,6 +1,6 @@
 # Inventory Hunter (Spanish edition)
 
-Added support for [PCcomponentes.com](https://www.pccomponentes.com/)
+Added support for [PCcomponentes.com](https://www.pccomponentes.com/) and [Xtremmedia.com](https://xtremmedia.com/)
 
 Based on EricJMarti's [Inventory Hunter](https://github.com/EricJMarti/inventory-hunter):
 
