@@ -9,7 +9,7 @@ from hunter import hunt
 
 
 # required for price parsing logic
-locale.setlocale(locale.LC_ALL, '')
+locale.setlocale(locale.LC_ALL, 'es_ES.utf8')
 
 
 def parse_args():
